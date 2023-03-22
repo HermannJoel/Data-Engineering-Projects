@@ -1,11 +1,15 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-import datetime as dt
 xrange = range
 import warnings
 import os
 import pathlib
+import psycopg2
+import pyodbc
+import sqlalchemy as sqlalchemy
+from sqlalchemy import create_engine
+from pymongo import MongoClient
 
 def RemoveP50P90TypeHedge(data, *args, **kwargs):
     """udf to remove p50 p90 values based on date_debut and date_fin
@@ -159,8 +163,8 @@ def ReadExcelFile(path, **kwargs):
         return pd.read_excel(path, **kwargs)
     else: 
         return pd.read_csv(path, **kwargs)
+
     
-   
 def format_float(df, column, decimals=2):
     df[column] = df[column].apply(lambda x: f"{x:,.{decimals}f}")
     return df
@@ -281,3 +285,77 @@ def SendEmail(to, subject, content):
     
     server.quit()
     
+
+
+def open_postgres_db():
+    print('Connecting to db!')
+    connection_string = f"postgresql://{username}:{pwd}@{hostname}:{portid}/{database}"
+    cnxn = psycopg2.connect(connection_string)
+    cursor = cnxn.cursor()
+    print( "Connected!\n")
+    return cnxn
+    
+def QueryDataFromPostgreSQL(query, db_connection_string):
+    engine = sqlalchemy.create_engine(db_connection_string)
+    connection = engine.connect()
+    dataframe= pd.read_sql_query(
+        sql=query, con=db_connection_string
+    )
+    return dataframe
+
+def ReadDataFromMsSQL(query):
+    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
+                          "Server=DESKTOP-JDQLDT1/MSSQLSERVERDWH;"
+                          "Database=DWH;"
+                          "Trusted_Connection=yes;")
+    cursor = cnxn.cursor()
+    dataframe= pd.read_sql_query(
+        sql=query, con=cnxn
+    )
+    return dataframe
+
+def ReadFromPostgreSQL(query, connection_string):
+    cnxn = psycopg2.connect(connection_string)
+    cursor = cnxn.cursor()
+    dataframe= pd.read_sql_query(
+        sql=query, con=connection_string
+    )
+    return dataframe
+
+
+def InsertInSQL(dataset, table, conn):
+    engine = sqlalchemy.create_engine(conn)
+    connection = engine.connect()
+    dataset.to_sql(name = table, con = connection, if_exists = 'append', index = False)
+
+def date_convert(date_col_to_convert):
+    #return list(map(lambda x: datetime.datetime.strptime(x,'%b %d, %Y').strftime('%Y-%m-%d'), old_df['oldDate']))
+    return datetime.datetime.strptime(date_col_to_convert, '%b %d, %Y').strftime('%Y-%m-%d')
+    
+
+def ConvertDateColumns(dataframe, date_format):
+    for col in dataframe.columns:
+        if dataframe[col].dtype == 'datetime64[ns]' or 'date' in col.lower():
+            try:
+                #dataframe[col] = pd.to_datetime(dataframe[col], format=date_format)
+                dataframe[col] = dataframe[col].apply(lambda x: datetime.strptime(x, date_format))
+            except:
+                continue
+    return dataframe
+  
+    
+def InsertDocToMongoDB(dest_db, dest_collection, query_name, **kwargs):
+    try:
+        myclient=MongoClient(kwargs['mongodb_conn_str'])
+        db=myclient[dest_db]
+        collection=db[dest_collection]
+        collection.insert_many(
+            ConvertDateColumns(
+                QueryDataFromPostgreSQL(
+                    query=query_name, db_connection_string=kwargs['postgres_conn_str']), kwargs['date_format']
+            ).to_dict('records')
+        )
+        print("Data imported in mondgobd successfully!")
+    except Exception as e:
+        print("Data Import error!: "+str(e))
+        
