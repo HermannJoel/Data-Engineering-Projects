@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-import datetime as dt
 xrange = range
 import configparser
 import sys

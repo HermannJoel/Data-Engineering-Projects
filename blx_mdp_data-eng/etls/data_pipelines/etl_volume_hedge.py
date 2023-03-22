@@ -5,7 +5,6 @@ from datetime import datetime
 import sys
 import os
 import configparser
-
 pd.options.mode.chained_assignment = None
 # adding etls/functions to the system path
 sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/etls/functions')
