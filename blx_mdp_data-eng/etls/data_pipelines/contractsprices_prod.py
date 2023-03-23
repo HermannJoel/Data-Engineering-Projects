@@ -4,32 +4,27 @@ xrange = range
 import os
 import configparser
 from datetime import datetime
-import datetime as dt
 import sys
+pd.options.mode.chained_assignment = None
+
 # adding etls/functions to the system path
-sys.path.insert(0, 'D:/git-local-cwd/portfolio-modeling/etls/functions')
+sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/etls/functions')
 from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame, 
                            MergeDataFrame, AdjustedByPct, ChooseCwd,
-                           RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
+                           RemoveP50P90, ReadExcelFile, SelectColumns,
+                           CreateMiniDataFrame)
 
-ChooseCwd(cwd='D:\git-local-cwd\portfolio-modeling')
+ChooseCwd(cwd="D:/git-local-cwd/Data-Engineering-Projects/")
 #Load Config
-config_file=os.path.join(os.path.dirname("__file__"), 'config/config.ini') 
-config=configparser.ConfigParser()
+config_file=os.path.join(os.path.dirname("__file__"), 'Config/config.ini') 
+config=configparser.ConfigParser(allow_no_value=True)
 config.read(config_file)
 
 # Initialize Variables
+src_dir=os.path.join(os.path.dirname("__file__"),config['develop']['src_dir'])
 dest_dir=os.path.join(os.path.dirname("__file__"),config['develop']['dest_dir'])
 template_hedge=os.path.join(os.path.dirname("__file__"),config['develop']['template_hedge'])
-prices=os.path.join(os.path.dirname("__file__"),config['develop']['template_prices'])
-
-src_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/"
-dest_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/"
-template_hedge="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/template_hedge.xlsx"
-template_prices="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/template_prices.xlsx"
-
-
-
+template_prices=os.path.join(os.path.dirname("__file__"),config['develop']['template_prices'])
 
 #To import template hedge
 hedge_=pd.read_excel(path_dir_in+"template_hedge.xlsx")

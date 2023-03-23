@@ -3,6 +3,8 @@ import numpy as np
 xrange = range
 from datetime import datetime
 import sys
+import configparser
+import os
 pd.options.mode.chained_assignment=None
 
 # adding etls/functions to the system path
@@ -10,9 +12,15 @@ sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/
 from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame, 
                            MergeDataFrame, AdjustedByPct, ChooseCwd,
                            RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
-dest_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/"
-temp_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/temp/"
 
+
+config_file=os.path.join(os.path.dirname("__file__"), 'config/config.ini') 
+config=configparser.ConfigParser(allow_no_value=True)
+config.read(config_file)
+
+src_dir=os.path.join(os.path.dirname("__file__"),config['develop']['src_dir'])
+dest_dir=os.path.join(os.path.dirname("__file__"),config['develop']['dest_dir'])
+temp_dir=os.path.join(os.path.dirname("__file__"),config['develop']['temp_dir'])
 
 def Extract(hedge_vmr_path, hedge_planif_path):
     ''' Function to extract excel files.
@@ -106,11 +114,29 @@ def transform(hedge_vmr, hedge_planif, **kwargs):
     except Exception as e:
         print("Template hedge transformation error!: "+str(e))
 
-
-
-def Load(dest_dir, src_flow, file_name):
+        
+def Load(dest_dir, src_flow, file_name, file_extension):
+    """Function to load data as excle file     
+    parameters
+    ==========
+    dest_dir (str) :
+        target folder path
+    src_flow (DataFrame) :
+        data frame returned by transform function        
+    file_name (str) : 
+        destination file name
+    file_extension (str) :
+        file extension as xlsx, csv, txt...
+    exemple
+    =======
+    Load(dest_dir, template_asset_without_prod, 'template_asset', '.csv')
+    >>> to load template_asset_without_prod in dest_dir as template_asset.csv 
+    """
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
         print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))

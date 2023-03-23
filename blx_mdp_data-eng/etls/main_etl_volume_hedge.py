@@ -24,5 +24,5 @@ if __name__ == '__main__':
     volume_hedge=TransformHedge(data_prod=df_prod, hedge=df_hedge, 
                                 prod_pct=df_profile, mean_pct=df_mean_profile, 
                                 oa=df_oa, cr=df_cr, ppa=df_ppa, profile=df_profile)
-    Load(dest_dir=dest_dir, src_flow=volume_hedge, file_name="volume_hedge")
+    Load(dest_dir=dest_dir, src_flow=volume_hedge, file_name="volume_hedge", file_extension='.xlsx')
     

@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-import datetime as dt
 xrange = range
 import configparser
 import sys
@@ -189,10 +188,13 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
  
     except Exception as e:
         print("Asset transformation error!: "+str(e))
-
-def Load(dest_dir, src_flow, file_name):
+        
+def Load(dest_dir, src_flow, file_name, file_extension):
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='.xlsx')
         print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))

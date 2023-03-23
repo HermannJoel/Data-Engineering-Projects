@@ -2,17 +2,26 @@ import pandas as pd
 import numpy as np
 import datetime as datetime
 xrange = range
+import configparser
 import sys
 from pandasql import sqldf
 pysqldf=lambda q: sqldf(q, globals())
+import os
+pd.options.mode.chained_assignment = None
+
+#Load Config
+config_file=os.path.join(os.path.dirname("__file__"), 'Config/config.ini') 
+config=configparser.ConfigParser(allow_no_value=True)
+config.read(config_file)
 
 # adding etls/functions to the system path
 sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/etls/functions')
 from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame, 
                                      MergeDataFrame, AdjustedByPct, ChooseCwd,
                                      RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
-dest_dir='//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/'
-temp_dir='//DESKTOP-JDQLDT1/SharedFolder/d-eng/temp/'
+
+dest_dir=os.path.join(os.path.dirname("__file__"), config['develop']['dest_dir'])
+temp_dir=os.path.join(os.path.dirname("__file__"),config['develop']['temp_dir'])
 
 def Extract(asset_vmr_path, asset_planif_path):
     ''' Function to extract excel files.
@@ -256,9 +265,12 @@ def Transform(data_asset_vmr, data_asset_planif, **kwargs):
         print("Template asset transformation error!: "+str(e))
         
         
-def Load(dest_dir, src_flow, file_name):
+def Load(dest_dir, src_flow, file_name, file_extension):
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
         print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))
