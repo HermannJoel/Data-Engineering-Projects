@@ -306,9 +306,27 @@ def TransformHedge(data_prod, hedge, prod_pct, mean_pct, **kwargs):
         print("Hedge transformation error!: "+str(e))
 
 
-def Load(dest_dir, src_flow, file_name):
+def Load(dest_dir, src_flow, file_name, file_extension):
+    """Function to load data as excle file     
+    parameters
+    ==========
+    dest_dir (str) :
+        target folder path
+    src_flow (DataFrame) :
+        data frame returned by transform function        
+    file_name (str) : 
+        destination file name
+    exemple
+    =======
+    Load(dest_dir, template_asset_without_prod, 'template_asset', '.csv')
+    >>> to load template_asset_without_prod in dest_dir as template_asset.csv 
+    """
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
+        print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))
         

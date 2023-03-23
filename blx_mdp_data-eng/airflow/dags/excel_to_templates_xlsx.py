@@ -41,7 +41,7 @@ create_tp_hedge_task = BashOperator(
     bash_command='python /blx_mdp_data-eng/etls/main_etl_template_hedge.py',
     dag=dag,
     )
-
+"""
 compute_p50_p90_asset_task  = BashOperator(
     task_id='etl_p50_p90_asset',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_p50_p90_asset.py',
@@ -53,16 +53,20 @@ compute_volume_hedge_task  = BashOperator(
     bash_command='python /blx_mdp_data-eng/etls/main_etl_volume_hedge.py',
     dag=dag,
     )
+"""
 
 create_tp_asset_task >> create_tp_productibles_task
-create_tp_productibles_task >> create_tp_hedge_task 
-create_tp_hedge_task  >> compute_p50_p90_asset_task
-compute_p50_p90_asset_task >> compute_volume_hedge_task
+create_tp_productibles_task >> create_tp_hedge_task  
 
+"""
+#create_tp_asset_task >> create_tp_productibles_task
+#create_tp_productibles_task >> create_tp_hedge_task 
+#create_tp_hedge_task  >> compute_p50_p90_asset_task
+#compute_p50_p90_asset_task >> compute_volume_hedge_task
 #create_tp_asset_task.set_downstream(create_tp_productibles_task) #task 2&3 will run in parallel after task 1
 #create_tp_asset_task.set_downstream(create_tp_hedge_task)
-
 #create_tp_asset_task[create_tp_productibles_task, create_tp_hedge_task]
+"""
 """
 import datetime
 from datetime import timedelta

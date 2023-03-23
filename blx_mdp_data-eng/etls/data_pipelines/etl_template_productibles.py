@@ -1,6 +1,8 @@
 import pandas as pd
 import sys
 import xlsxwriter
+import os
+import configparser
 from datetime import datetime
 # adding etls/functions to the system path
 sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/etls/functions')
@@ -8,8 +10,14 @@ from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame,
                            MergeDataFrame, AdjustedByPct, ChooseCwd,
                            RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
 
-dest_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/"
-temp_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/temp/"
+#Load Config
+config_file=os.path.join(os.path.dirname("__file__"), 'config/config.ini') 
+config=configparser.ConfigParser(allow_no_value=True)
+config.read(config_file)
+
+dest_dir=os.path.join(os.path.dirname("__file__"), config['develop']['dest_dir'])
+temp_dir=os.path.join(os.path.dirname("__file__"),config['develop']['temp_dir'])
+
 
 def Extract(productible_path, project_names_path, template_asset_path):
     ''' Function to extract excel files.
@@ -144,12 +152,29 @@ def Load(dest_dir, src_productible, src_profile_id, src_profile, src_mean_profil
     except Exception as e:
         print("Data load error!: "+str(e))
 
-def load_template_asset(dest_dir, src_flow, file_name):
+
+def LoadTemplateAsset(dest_dir, src_flow, file_name, file_extension):
+    """Function to load data as excle file     
+    parameters
+    ==========
+    dest_dir (str) :
+        target folder path
+    src_flow (DataFrame) :
+        data frame returned by transform function        
+    file_name (str) : 
+        destination file name
+    exemple
+    =======
+    Load(dest_dir, template_asset_without_prod, 'template_asset', '.csv')
+    >>> to load template_asset_with_prod in dest_dir as template_asset.csv 
+    """
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
         print("Template asset w/i prod loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))
-        
 
     
