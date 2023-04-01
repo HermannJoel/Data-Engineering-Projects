@@ -13,7 +13,7 @@ from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame,
                            RemoveP50P90, ReadExcelFile, SelectColumns,
                            CreateMiniDataFrame)
 
-ChooseCwd(cwd="D:/git-local-cwd/Data-Engineering-Projects/")
+ChooseCwd(cwd=os.getcwd())
 #Load Config
 config_file=os.path.join(os.path.dirname("__file__"), 'Config/config.ini') 
 config=configparser.ConfigParser(allow_no_value=True)
@@ -49,8 +49,7 @@ def Extract(template_asset_path, ppa_path):
     except Exception as e:
         print("Data Extraction error!: "+str(e))
 
-df_template_asset, df_ppa=Extract(template_asset_path=template_asset, ppa_path=ppa)
-
+        
 def transform(template_asset, df_ppa, **kwargs):
     """
     udf Function to generate template contracts prices asset in prod
@@ -114,29 +113,6 @@ def transform(template_asset, df_ppa, **kwargs):
         
     except Exception as e:
         print("")
-        
-prices_ppa=transform(template_asset=df_template_asset, df_ppa=df_ppa)
 
-def Load(dest_dir, src_flow, file_name):
-    """
-    udf Function to load prices ppa in prod in dest folder as excel file
-    Parameters
-    ===========
-    **kwargs
-        hedge_vmr: DataFrame
-                
-        hedge_planif: DataFrame
-    dest_dir: DataFrame
-        destination directory
-    src_flow: DataFrame
-        
-    file_name: str
-    """
-    try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
-        print("Data loaded succesfully!")
-    except Exception as e:
-        print("Data load error!: "+str(e))
-        
-Load(dest_dir=dest_dir, src_flow=prices_ppa, file_name="prices_ppa")
+
 

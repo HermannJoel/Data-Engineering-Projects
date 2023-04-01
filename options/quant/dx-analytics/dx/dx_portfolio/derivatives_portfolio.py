@@ -2,7 +2,9 @@
 #
 import numpy as np
 import pandas as pd
-from dx_valuation import*
+
+from ..dx_valuation import*
+from ..dx_simulation import*
 
 # models available for risk factor modeling
 models = {'gbm' : geometric_brownian_motion,
@@ -13,7 +15,7 @@ otypes = {'European' : valuation_mcs_european,
           'American' : valuation_mcs_american}
 
 class derivatives_portfolio(object):
-''' Class for building portfolios of derivatives positions.
+    ''' Class for building portfolios of derivatives positions.
     Attributes
     ==========
     name : str
@@ -50,13 +52,11 @@ class derivatives_portfolio(object):
         self.special_dates = []
         for pos in self.positions:
             # determine earliest starting_date
-            self.val_env.constants['starting_date'] = \ 
-            min(self.val_env.constants['starting_date'], 
-                positions[pos].mar_env.pricing_date)
+            self.val_env.constants['starting_date'] = min(self.val_env.constants['starting_date'], 
+                                                          positions[pos].mar_env.pricing_date)
             # determine latest date of relevance
-            self.val_env.constants['final_date'] = \ 
-            max(self.val_env.constants['final_date'], 
-                positions[pos].mar_env.constants['maturity'])
+            self.val_env.constants['final_date'] = max(self.val_env.constants['final_date'], 
+                                                       positions[pos].mar_env.constants['maturity'])
             # collect all underlyings
             # add to set; avoids redundancy
             self.underlyings.add(positions[pos].underlying)
@@ -134,11 +134,10 @@ class derivatives_portfolio(object):
             mar_env = positions[pos].mar_env
             mar_env.add_environment(self.val_env)
             # instantiate valuation class
-            self.valuation_objects[pos] = \ 
-            val_class(name=positions[pos].name, 
-                      mar_env=mar_env, 
-                      underlying=self.underlying_objects[positions[pos].underlying],
-                      payoff_func=positions[pos].payoff_func)
+            self.valuation_objects[pos] = val_class(name=positions[pos].name, 
+                                                    mar_env=mar_env, 
+                                                    underlying=self.underlying_objects[positions[pos].underlying], 
+                                                    payoff_func=positions[pos].payoff_func)
 
     def get_positions(self):
         ''' Convenience method to get information about
@@ -146,9 +145,9 @@ class derivatives_portfolio(object):
         '''
         for pos in self.positions:
             bar = '\n' + 50 * '-'
-            print bar
+            print(bar)
             self.positions[pos].get_info()
-            print bar
+            print(bar)
             
     def get_statistics(self, fixed_seed=False):
         ''' Provides portfolio statistics. '''

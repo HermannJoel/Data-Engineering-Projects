@@ -1,6 +1,5 @@
 from data_pipelines.etl_volume_hedge import*
 import pandas as pd
-import numpy as np
 import configparser
 import os
 pd.options.mode.chained_assignment=None

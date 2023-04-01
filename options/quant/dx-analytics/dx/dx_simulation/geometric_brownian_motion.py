@@ -1,5 +1,6 @@
 import numpy as np
-from simulation_class import simulation_class
+from .simulation_class import simulation_class
+from .sn_random_numbers import sn_random_numbers
 
 class geometric_brownian_motion(simulation_class):
     ''' Class to generate simulated paths based on

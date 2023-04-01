@@ -1,7 +1,6 @@
 # plot_option_stats.py
 #
 import matplotlib.pyplot as plt
-
 def plot_option_stats(s_list, p_list, d_list, v_list):
     ''' Plots option prices, Deltas, and Vegas for a set of
     different initial values of the underlying.

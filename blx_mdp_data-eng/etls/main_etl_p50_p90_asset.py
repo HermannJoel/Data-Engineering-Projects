@@ -2,7 +2,6 @@ from data_pipelines.etl_p50_p90_asset import*
 import pandas as pd
 import os
 import configparser
-import sys
 pd.options.mode.chained_assignment = None
 
 #Load Config
@@ -21,4 +20,4 @@ if __name__ == '__main__':
                                                                       mean_pct_path=prod, asset_path=asset)
     p50_p90_asset=TransformAsset(data_prod=df_prod, prod_pct=df_profile, mean_pct=df_mean_profile,
                                  sub_asset=sub_df_asset, profile=df_profile, asset=df_asset)
-    Load(dest_dir=dest_dir, src_flow=p50_p90_asset, file_name="p50_p90_asset", file_extension='.xlsx')
+    Load(dest_dir=dest_dir, src_flow=p50_p90_asset, file_name='p50_p90_asset', file_extension='.xlsx')

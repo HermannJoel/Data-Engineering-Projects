@@ -1,8 +1,8 @@
 # jump_diffusion.py
 #
 import numpy as np
-from sn_random_numbers import sn_random_numbers
-from simulation_class import simulation_class
+from .sn_random_numbers import sn_random_numbers
+from .simulation_class import simulation_class
 
 class jump_diffusion(simulation_class):
     ''' Class to generate simulated paths based on

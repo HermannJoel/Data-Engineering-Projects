@@ -25,29 +25,35 @@ dag = DAG(
     start_date = days_ago(1),
     default_args=default_args
     )
-create_tp_asset_task = BashOperator(
+create_template_asset_task = BashOperator(
     task_id='etl_template_asset',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_template_asset.py',
     dag=dag,
     )
 
-create_tp_productibles_task = BashOperator(
+create_template_productibles_task = BashOperator(
     task_id='etl_template_prod',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_template_productibles.py',
     dag=dag,
     )
-create_tp_hedge_task = BashOperator(
+create_template_hedge_task = BashOperator(
     task_id='etl_template_hedge',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_template_hedge.py',
     dag=dag,
     )
-"""
+
+create_template_price_task  = BashOperator(
+    task_id='etl_template_prices',
+    bash_command='python /blx_mdp_data-eng/etls/main_etl_template_prices.py',
+    dag=dag,
+    )
+
 compute_p50_p90_asset_task  = BashOperator(
     task_id='etl_p50_p90_asset',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_p50_p90_asset.py',
     dag=dag,
     )
-
+"""
 compute_volume_hedge_task  = BashOperator(
     task_id='etl_volume_hedge',
     bash_command='python /blx_mdp_data-eng/etls/main_etl_volume_hedge.py',
@@ -55,9 +61,9 @@ compute_volume_hedge_task  = BashOperator(
     )
 """
 
-create_tp_asset_task >> create_tp_productibles_task
-create_tp_productibles_task >> create_tp_hedge_task  
-
+create_template_asset_task >> create_template_productibles_task
+create_template_productibles_task >> create_template_hedge_task  
+create_template_hedge_task[create_template_prices_task, compute_p50_p90_asset_task]
 """
 #create_tp_asset_task >> create_tp_productibles_task
 #create_tp_productibles_task >> create_tp_hedge_task 
