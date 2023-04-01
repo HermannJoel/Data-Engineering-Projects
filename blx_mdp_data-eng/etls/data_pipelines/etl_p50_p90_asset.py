@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import datetime as dt
 xrange = range
 import configparser
 import sys
@@ -96,9 +97,9 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
         d["date"]=pd.to_datetime(d["date"])
         d["date_dementelement"]=pd.to_datetime(d["date_dementelement"])
         d["date_merchant"]=pd.to_datetime(d["date_merchant"])
-        d['année']=d['date'].datetime.year
-        d['trim']=d['date'].datetime.to_period('Q').datetime.strftime("Q%q-%y")
-        d['mois']=d['date'].datetime.month
+        d['année']=d['date'].dt.year
+        d['trim']=d['date'].dt.to_period('Q').dt.strftime("Q%q-%y")
+        d['mois']=d['date'].dt.month
         #To remove p50, p90 based on cod and date_dementelement 
         results=RemoveP50P90(d, cod='cod', dd='date_dementelement', p50='p50_adj', 
                             p90='p90_adj', date='date', projetid='projet_id')
@@ -112,7 +113,7 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
         asset=kwargs['asset']
         asset["date_merchant"].fillna(asset["cod"] + pd.DateOffset(years=20), inplace=True) 
         #To select only data with 2023 cod 
-        filter = asset['cod'] > datetime.datetime.today().strftime('%Y-%m-%d') 
+        filter = asset['cod'] > dt.datetime.today().strftime('%Y-%m-%d') 
         asset = asset.loc[filter]       
         asset.loc[asset['technologie']=='éolien', 'p50']=asset["puissance_installée"]*8760*0.25
         asset.loc[asset['technologie']=='éolien', 'p90']=asset["puissance_installée"]*8760*0.20
@@ -137,7 +138,7 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
         mean_profile_sol=mean_profile_sol.assign(mth=[1 + i for i in xrange(len(mean_profile_sol))])[['mth'] + mean_profile_sol.columns.tolist()]
         #To calculate adjusted p50 and p90 solar adusted by the mean profile 
         s=mean_profile_sol.set_index('mth')['m_pct_solaire']
-        pct = pd.to_datetime(d1['date']).datetime.month.map(s)
+        pct = pd.to_datetime(d1['date']).dt.month.map(s)
         d1['p50_adj'] = -d1['p50'] * pct
         d1['p90_adj'] = -d1['p90'] * pct
                 
@@ -145,9 +146,9 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
         d1['date_dementelement'] = pd.to_datetime(d1['date_dementelement'])
         d1['date'] = pd.to_datetime(d1['date'])
         #To create new columns année, trimestre and mois
-        d1['année'] = d1['date'].datetime.year
-        d1['trim'] = d1['date'].datetime.to_period('Q').datetime.strftime("Q%q-%y")
-        d1['mois'] = d1['date'].datetime.month
+        d1['année'] = d1['date'].dt.year
+        d1['trim'] = d1['date'].dt.to_period('Q').dt.strftime("Q%q-%y")
+        d1['mois'] = d1['date'].dt.month
         #To remove p50, p90, based on cod and date_dementelement solar
         results=RemoveP50P90(d1, cod='cod', dd='date_dementelement', p50='p50_adj', 
                         p90='p90_adj', date='date', projetid='projet_id')
@@ -162,16 +163,16 @@ def TransformAsset(data_prod, mean_pct, **kwargs):
         mean_profile_wp = mean_profile_wp.assign(mth=[1 + i for i in xrange(len(mean_profile_wp))])[['mth'] + mean_profile_wp.columns.tolist()]
         #To calculate adjusted p50 and p90 wp (adjusted with p50)
         s2 = mean_profile_wp.set_index('mth')['m_pct_eolien']
-        pct = pd.to_datetime(d2['date']).datetime.month.map(s2)
+        pct = pd.to_datetime(d2['date']).dt.month.map(s2)
         d2['p50_adj'] = -d2['p50'] * pct
         d2['p90_adj'] = -d2['p90'] * pct
         d2["cod"] = pd.to_datetime(d2["cod"])
         d2['date_dementelement'] = pd.to_datetime(d2['date_dementelement'])
         d2["date"] = pd.to_datetime(d2["date"])
         #To create new columns année, trimestre and mois
-        d2['année'] = d2['date'].datetime.year
-        d2['trim'] = d2['date'].datetime.to_period('Q').datetime.strftime("Q%q-%y")
-        d2['mois'] = d2['date'].datetime.month
+        d2['année'] = d2['date'].dt.year
+        d2['trim'] = d2['date'].dt.to_period('Q').dt.strftime("Q%q-%y")
+        d2['mois'] = d2['date'].dt.month
         #To remove p50, p90, based on cod and date_dementelement wind power
         res=RemoveP50P90(d2, cod='cod', dd='date_dementelement', p50='p50_adj', 
                         p90='p90_adj', date='date', projetid='projet_id')
@@ -194,7 +195,7 @@ def Load(dest_dir, src_flow, file_name, file_extension):
         if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
             src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
         else: 
-            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='.xlsx')
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
         print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))

@@ -28,24 +28,24 @@ class derivatives_position(object):
         self.payoff_func = payoff_func
         
     def get_info(self):
-        print "NAME"
-        print self.name, '\n'
-        print "QUANTITY"
-        print self.quantity, '\n'
-        print "UNDERLYING"
-        print self.underlying, '\n'
-        print "MARKET ENVIRONMENT"
-        print "\n**Constants**"
+        print("NAME")
+        print(self.name, '\n')
+        print("QUANTITY")
+        print(self.quantity, '\n')
+        print("UNDERLYING")
+        print(self.underlying, '\n')
+        print("MARKET ENVIRONMENT")
+        print("\n**Constants**")
         
         for key, value in self.mar_env.constants.items():
-            print key, value
-        print "\n**Lists**"
+            print(key, value)
+        print("\n**Lists**")
         for key, value in self.mar_env.lists.items():
-            print key, value
-        print "\n**Curves**"
+            print(key, value)
+        print("\n**Curves**")
         for key in self.mar_env.curves.items():
-            print key, value
-        print "\nOPTION TYPE"
-        print self.otype, '\n'
-        print "PAYOFF FUNCTION"
-        print self.payoff_func
+            print(key, value)
+        print("\nOPTION TYPE")
+        print(self.otype, '\n')
+        print("PAYOFF FUNCTION")
+        print(self.payoff_func)

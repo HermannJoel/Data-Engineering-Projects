@@ -11,7 +11,7 @@ import investy
 
 
 # Load Config
-config_file = os.path.join(os.path.dirname("__file__"), 'config/config.ini')
+config_file = os.path.join(os.path.dirname("__file__"), 'Config/config.ini')
 config = configparser.ConfigParser()
 config.read(config_file)
 

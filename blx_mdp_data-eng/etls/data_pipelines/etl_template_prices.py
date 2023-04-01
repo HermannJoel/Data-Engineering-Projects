@@ -4,34 +4,27 @@ xrange = range
 import os
 import configparser
 from datetime import datetime
-import datetime as dt
 import sys
 pd.options.mode.chained_assignment = None
 
 # adding etls/functions to the system path
-sys.path.insert(0, 'D:/git-local-cwd/portfolio-modeling/etls/functions')
+# adding etls/functions to the system path
+sys.path.insert(0, 'D:/git-local-cwd/Data-Engineering-Projects/blx_mdp_data-eng/etls/functions')
 from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame, 
                            MergeDataFrame, AdjustedByPct, ChooseCwd,
                            RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
 
-ChooseCwd(cwd='D:\git-local-cwd\portfolio-modeling')
 #Load Config
 config_file=os.path.join(os.path.dirname("__file__"), 'config/config.ini') 
-config=configparser.ConfigParser()
+config=configparser.ConfigParser(allow_no_value=True)
 config.read(config_file)
 
 # Initialize Variables
 dest_dir=os.path.join(os.path.dirname("__file__"),config['develop']['dest_dir'])
-template_asset=os.path.join(os.path.dirname("__file__"),config['develop']['template_asset'])
-prices=os.path.join(os.path.dirname("__file__"),config['develop']['prices'])
 
-dest_dir="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/"
-vmr="//DESKTOP-JDQLDT1/SharedFolder/d-eng/in/Volumes_Market_Repowering.xlsx"
-template_asset="//DESKTOP-JDQLDT1/SharedFolder/d-eng/out/template_asset.xlsx"
-prices="//DESKTOP-JDQLDT1/SharedFolder/d-eng/in/Production et stats de tous les parcs B22.xlsx"
 
 def Extract(prices_path, template_asset_path):
-    ''' Function to extract excel files.
+    '''Function to extract excel files.
     Parameters
     ==========
     prices_path: str
@@ -48,14 +41,11 @@ def Extract(prices_path, template_asset_path):
     try:
         df_prices=ReadExcelFile(prices_path, sheet_name='1-EO_Calcul Reporting', header=10)
         sub_df_template_asset=ReadExcelFile(template_asset_path, usecols = ["projet_id", "projet", "en_planif"])
-        return df_prices, df_template_asset 
+        return df_prices, sub_df_template_asset 
     except Exception as e:
         print("Data Extraction error!: "+str(e))
 
-df_prices, sub_df_template_asset=Extract(prices_path=prices, template_asset_path=template_asset)
-
-
-def transform(prices, sub_template_asset, **kwargs):
+def transform(data_prices, sub_template_asset, **kwargs):
     """
     udf Function to generate template contracts prices asset in prod
     Parameters
@@ -73,8 +63,7 @@ def transform(prices, sub_template_asset, **kwargs):
         template prices dataframe
     """
     try:
-        prices=df_prices
-        prices=prices.iloc[:106, 80:93]
+        prices=data_prices.iloc[:106, 80:93]
         #To rename columns
         prices.rename(columns={'Site.4': 'site', 'JAN [€/MWh].3': 'jan', 'FEB [€/MWh].3':'feb', 
                               'MAR [€/MWh].3':'mar', 'APR [€/MWh].3':'apr', 'MAY [€/MWh].3':'may', 
@@ -108,7 +97,7 @@ def transform(prices, sub_template_asset, **kwargs):
         prices_id = pd.concat(frame, axis=1, ignore_index=False)
         #To create a new column with projet_id
         #Compare the 1st 5 character of projet names and site. set projet_id=code when the values match.
-        n = 5
+        n = 3
         prices_id.loc[prices_id['site'].str[:n] == prices_id['projet'].str[:n], 'projet_id'] = prices_id["code"]
         template_prices=prices_id[["projet_id", "site", "jan", "feb", "mar", "apr", "may", "june","july", 
                                    "aug", "sep", "oct", "nov", "dec", ]]
@@ -116,31 +105,34 @@ def transform(prices, sub_template_asset, **kwargs):
         return template_prices
     
     except Exception as e:
-        print("Template hedge transformation error!: "+str(e))
-
-template_prices=transform(prices=df_prices, sub_template_asset=sub_df_template_asset)
+        print("Template prices transformation error!: "+str(e))
 
 
-def Load(dest_dir, src_flow, file_name):
-    """
-    udf Function to load template contracts prices asset in prod in dest folder as excel file
-    Parameters
-    ===========
-    **kwargs
-        hedge_vmr: DataFrame
-                
-        hedge_planif: DataFrame
-    dest_dir: DataFrame
-        destination directory
-    src_flow: DataFrame
+def Load(dest_dir, src_flow, file_name, file_extension):
+    """UDF Function to load template contracts prices asset in prod in dest folder as excel file     
+    parameters
+    ==========
+    dest_dir (str) :
+        target folder path
+    src_flow (DataFrame) :
+        data frame returned by transform function        
+    file_name (str) : 
+        destination file name
+    file_extension (str):
         
-    file_name: str
+    exemple
+    =======
+    Load(dest_dir, template_asset_without_prod, 'template_asset', '.csv')
+    >>> to load template_asset_without_prod in dest_dir as template_asset.csv 
     """
     try:
-        src_flow.to_excel(dest_dir+file_name+'.xlsx', index=False, float_format="%.4f")
+        if file_extension in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.odf', '.ods', '.odt']:
+            src_flow.to_excel(dest_dir+file_name+file_extension, index=False, float_format="%.4f")
+        else: 
+            src_flow.to_csv(dest_dir+file_name+file_extension, index=False, float_format="%.4f", encoding='utf-8-sig')
         print("Data loaded succesfully!")
     except Exception as e:
         print("Data load error!: "+str(e))
         
-Load(dest_dir=dest_dir, src_flow=template_prices, file_name="template_prices")
+
         

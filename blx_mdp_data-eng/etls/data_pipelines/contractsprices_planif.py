@@ -11,7 +11,7 @@ from etl_functions import (RemoveP50P90TypeHedge, CreateDataFrame,
                            MergeDataFrame, AdjustedByPct, ChooseCwd,
                            RemoveP50P90, ReadExcelFile, SelectColumns,CreateMiniDataFrame)
 
-ChooseCwd(cwd="D:/git-local-cwd/Data-Engineering-Projects/")
+ChooseCwd(cwd=os.getcwd())
 #Load Config
 config_file=os.path.join(os.path.dirname("__file__"), 'Config/config.ini') 
 config=configparser.ConfigParser(allow_no_value=True)

@@ -1,7 +1,6 @@
 # constant_short_rate.py
 #
-from get_year_deltas import*
-
+from .get_year_deltas import*
 class constant_short_rate(object):
     ''' Class for constant short rate discounting.
     Attributes

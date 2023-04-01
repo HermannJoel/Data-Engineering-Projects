@@ -1,7 +1,7 @@
 # valuation_mcs_american.py
 #
 import numpy as np
-from valuation_class import valuation_class
+from .valuation_class import valuation_class
 
 class valuation_mcs_american(valuation_class):
     ''' Class to value American options with arbitrary payoff

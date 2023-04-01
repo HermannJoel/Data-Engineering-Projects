@@ -1,7 +1,7 @@
 # valuation_mcs_european.py
 #
 import numpy as np
-from valuation_class import valuation_class
+from .valuation_class import valuation_class
 
 class valuation_mcs_european(valuation_class):
     ''' Class to value European options with arbitrary payoff

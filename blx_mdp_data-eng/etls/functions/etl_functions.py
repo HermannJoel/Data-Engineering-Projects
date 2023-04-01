@@ -130,7 +130,7 @@ Args:
     col1 (str) : Takes the value p50_adj column label
     col2 (str) : Takes the value of pct_couverture column label
     """   
-    return round(data[kwargs['col1']], 4) * round(data[kwargs['col2']], 4)
+    return round(data[kwargs['col1']].apply(lambda x: float(x)), 4) * round(data[kwargs['col2']].apply(lambda x: float(x)), 4)
 
 def MergeDataFrame(*args):
     """
